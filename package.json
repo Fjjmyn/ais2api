@@ -1,0 +1,16 @@
+{
+  "name": "aistudio-browser-manager",
+  "version": "2.0.0",
+  "description": "Browser automation manager for AI Studio",
+  "main": "unified-server.js",
+  "scripts": {
+    "start": "node unified-server.js"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "playwright": "^1.53.1",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "basic-auth": "^2.0.1"
+  }
+}
