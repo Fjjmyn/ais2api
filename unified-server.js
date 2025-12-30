@@ -407,10 +407,14 @@ ${processInfo.map(p => `<span class="label">${p.display_name}</span>: ${p.is_ali
     // 启动 HTTP 服务器
     await this._startHttpServer();
 
-    // 在后台启动浏览器实例
-    this._startBrowserInstances().catch(err => {
-      this.logger.error('启动浏览器实例失败:', err);
-    });
+    // 等待浏览器实例启动
+    try {
+      await this._startBrowserInstances();
+    } catch (err) {
+      this.logger.error('启动浏览器实例失败，正在优雅关闭:', err);
+      await this.stop();
+      process.exit(1);
+    }
   }
 
   async _startHttpServer() {
@@ -452,6 +456,17 @@ ${processInfo.map(p => `<span class="label">${p.display_name}</span>: ${p.is_ali
 // ===================================================================================
 async function initializeServer() {
   const server = new BrowserAutomationServer();
+
+  // 全局异常处理
+  process.on('uncaughtException', (err) => {
+    console.error('❌ 未捕获的异常:', err.stack);
+    server.stop().finally(() => process.exit(1));
+  });
+
+  process.on('unhandledRejection', (reason) => {
+    console.error('❌ 未处理的 Promise rejection:', reason);
+    server.stop().finally(() => process.exit(1));
+  });
 
   // 信号处理
   process.on('SIGTERM', async () => {
